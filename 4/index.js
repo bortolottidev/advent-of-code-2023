@@ -1,11 +1,15 @@
 import { open } from 'node:fs/promises';
 
 const inputFile = await open('./input.txt');
-let totalPoints = 0;
+//let totalPoints = 0;
+let totalCards = 0;
+let copyCards = [];
 
 for await (const line of inputFile.readLines()) {
   // read
   let [ winningNumbers, numbers ] = line.split(": ")[1].split(" | ");
+  const currentCopyCards = copyCards[0] || 0; 
+  copyCards = copyCards.slice(1);
 
   // clean
   winningNumbers = winningNumbers.split(" ").filter(Boolean);
@@ -16,14 +20,18 @@ for await (const line of inputFile.readLines()) {
     winningNumbersMap.add(num);
   }
 
-  let partialPoints = 0;
+  //let partialPoints = 0;
+  let partialIndex = 0;
+  const currentCardsNumber = 1 + currentCopyCards;
   for (const num of numbers) {
     if(winningNumbersMap.has(num)) {
-      partialPoints = partialPoints === 0 ? 1 : (partialPoints * 2);
+      copyCards[partialIndex] = copyCards[partialIndex] ? (copyCards[partialIndex] + currentCardsNumber) : currentCardsNumber;
+      partialIndex++;
+      //partialPoints = partialPoints === 0 ? 1 : (partialPoints * 2);
     }
   }
 
-  totalPoints += partialPoints;
+  totalCards += currentCardsNumber ;
 }
 
-console.log(totalPoints);
+console.log(totalCards);
