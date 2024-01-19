@@ -73,3 +73,71 @@ for await (const line of inputFile.readLines()) {
 }
 
 console.log(totalPoints);
+
+// PART 2
+const inputFile2 = await open('./input.txt');
+let totalPoints2 = 0;
+for await (const line of inputFile2.readLines()) {
+	gameId++;
+	let skipCharacters = true;
+	const sets = [];
+	let startWordIndex = null;
+	let currentIndex = -1;
+	let currentSet = {};
+	let currentColorNumber = null;
+
+	for (const character of line) {
+		currentIndex++;
+		// skip all characters before :
+		if (character === ':') {
+			skipCharacters = false;
+			continue;
+		}
+		if (skipCharacters) {
+			continue;
+		}
+
+		if (character !== ' ' && !startWordIndex) {
+			startWordIndex = currentIndex;
+		}
+
+		// parse number color and set
+		if (character === ';') {
+			// set complete
+			const color = line.slice(startWordIndex,currentIndex);
+			currentSet[color] = currentColorNumber;
+			sets.push(currentSet);
+			currentSet = {};
+			currentColorNumber = null;
+		}
+
+		if (character === ' ' && !!startWordIndex) {
+			// number complete
+			currentColorNumber = Number(line.slice(startWordIndex,currentIndex));
+			startWordIndex = null;
+		}
+
+		if (character === ',') {
+			// word complete
+			const color = line.slice(startWordIndex,currentIndex);
+			currentSet[color] = currentColorNumber;
+			startWordIndex = null;
+			currentColorNumber = null;
+		}
+	}
+	const color = line.slice(startWordIndex);
+	currentSet[color] = currentColorNumber;
+	sets.push(currentSet);
+
+  // [RED, GREEN, BLUE]
+  const minColorsRequired = [0, 0, 0];
+  
+	sets.forEach(set => { 
+		minColorsRequired[0] = Math.max((set.red || 0), minColorsRequired[0]);
+		minColorsRequired[1] = Math.max((set.green || 0), minColorsRequired[1]);
+		minColorsRequired[2] = Math.max((set.blue || 0), minColorsRequired[2]);
+	});
+  totalPoints2 += minColorsRequired[0] * minColorsRequired[1] * minColorsRequired[2];
+}
+
+console.log(totalPoints2);
